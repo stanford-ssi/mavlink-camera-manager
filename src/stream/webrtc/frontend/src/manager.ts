@@ -6,26 +6,18 @@ import { Session } from "@/session";
 
 export class Manager {
   public status: string;
-  private url: URL;
-  public consumers: Map<String, Consumer>;
-  private rtc_configuration: RTCConfiguration;
-
-  constructor(ip: string, port: number, rtc_configuration: RTCConfiguration) {
-    this.status = "";
-    this.url = new URL(`ws://${ip}:${port}`);
-    this.consumers = new Map<string, Consumer>();
-    this.rtc_configuration = rtc_configuration;
-  }
+  public consumers: Map<String, Consumer> = new Map();
 
   public updateStatus(status: string): void {
-    this.status = status;
+    const time = new Date().toLocaleTimeString("en-US", { hour12: false });
+    this.status = `[${time}]: ${status}`;
   }
 
-  public addConsumer(): void {
+  public addConsumer(signaller_ip: string, signaller_port: number): void {
+    const websocket_address = new URL(`ws://${signaller_ip}:${signaller_port}`);
+
     // Each consumer has its own signaller, which is shared with all its Sessions.
-    const signaller = new Signaller(this.url, true, (status: string): void => {
-      this.updateStatus(status);
-    });
+    const signaller = new Signaller(websocket_address, true, null);
 
     signaller.ws.addEventListener(
       "open",
@@ -37,9 +29,12 @@ export class Manager {
             consumer.updateStreams.bind(consumer)
           );
           // Updates its status whenever signalling got a new status
-          consumer.signaller.on_status_change = this.updateStatus.bind(this);
+          consumer.signaller.on_status_change =
+            consumer.updateSignallerStatus.bind(consumer);
 
           this.consumers.set(consumer_id, consumer);
+
+          signaller.requestStreams();
 
           // Regularly asks for available streams, which will trigger the consumer "on_available_streams" callback
           let handler_id: number | undefined = undefined;
@@ -83,7 +78,16 @@ export class Manager {
     return Result.ok(undefined as void);
   }
 
-  public addSession(consumer_id: string, producer_id: string): Result<void> {
+  public addSession(
+    consumer_id: string,
+    producer_id: string,
+    bundlePolicy: RTCBundlePolicy,
+    iceServers: RTCIceServer[],
+    allowedIps: string[],
+    allowedProtocols: string[],
+    jitterBufferTarget: number | null,
+    contentHint: string
+  ): Result<void> {
     const consumer = this.consumers.get(consumer_id);
     if (consumer == undefined) {
       const error = `Failed to find consumer ${consumer_id}`;
@@ -108,7 +112,12 @@ export class Manager {
           consumer_id,
           stream,
           signaller,
-          this.rtc_configuration,
+          bundlePolicy,
+          iceServers,
+          allowedIps,
+          allowedProtocols,
+          jitterBufferTarget,
+          contentHint,
           (session_id: string): void => {
             consumer.removeSession(session_id);
           }

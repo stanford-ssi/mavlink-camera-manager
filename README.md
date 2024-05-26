@@ -73,7 +73,7 @@ sudo apt install -y --no-install-recommends \
    gstreamer1.0-nice
 ```
 
-_note: GStreamer needs to be at least version `1.16.0`. You can check it by running `gst-launch-1.0 --version`._
+_note: We recommend GStreamer `1.24.0` or above. Previous versions have thread leaks when using WebRTC. You can check it by running `gst-launch-1.0 --version`._
 
 - Extract the zip
 - optionally, put the folder to your Linux PATH
@@ -139,7 +139,7 @@ gstreamer-launch-1.0 udpsrc port=$PORT \
 
 ## How to build it
 
-_This section assumes a Ubuntu 22.04, adaptation will be necessary for other distros._
+_This section assumes a Ubuntu 24.04, adaptation will be necessary for other distros._
 
 1. Install the development dependencies:
 
