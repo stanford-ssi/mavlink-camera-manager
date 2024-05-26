@@ -46,7 +46,7 @@ impl SinkInterface for WebRTCSink {
             gst_webrtc::WebRTCRTPTransceiverDirection::Sendonly,
         );
         transceiver.set_property("do-nack", false);
-        transceiver.set_property("fec-type", gst_webrtc::WebRTCFECType::None);
+        // transceiver.set_property("fec-type", gst_webrtc::WebRTCFECType::None);
 
         // Link
         let sink_id = &self.get_id();
@@ -311,7 +311,7 @@ impl WebRTCSink {
                 gst::ElementFactory::make("webrtcbin")
                     .property_from_str("name", format!("webrtcbin-{}", bind.session_id).as_str())
                     .property("async-handling", true)
-                    .property("bundle-policy", gst_webrtc::WebRTCBundlePolicy::MaxBundle) // https://webrtcstandards.info/sdp-bundle/
+                    // .property("bundle-policy", gst_webrtc::WebRTCBundlePolicy::MaxBundle) // https://webrtcstandards.info/sdp-bundle/
                     .property("latency", 0u32)
                     .property_from_str("stun-server", cli::manager::stun_server_address().as_str())
                     .property_from_str("turn-server", DEFAULT_TURN_ENDPOINT)

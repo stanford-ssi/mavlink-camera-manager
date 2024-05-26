@@ -169,7 +169,8 @@ impl RTSPServer {
                         " ! queue leaky=downstream flush-on-eos=true silent=true max-size-buffers=0",
                         " ! capsfilter caps={rtp_caps:?}",
                         " ! rtph264depay",
-                        " ! rtph264pay name=pay0 aggregate-mode=zero-latency config-interval=10 pt=96",
+                        " ! rtph264pay name=pay0 config-interval=10 pt=96",
+// aggregate-mode=zero-latency 
                     ),
                     socket_path = socket_path,
                     rtp_caps = rtp_caps,
