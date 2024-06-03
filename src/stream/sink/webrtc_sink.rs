@@ -312,7 +312,7 @@ impl WebRTCSink {
                     .property_from_str("name", format!("webrtcbin-{}", bind.session_id).as_str())
                     .property("async-handling", true)
                     // .property("bundle-policy", gst_webrtc::WebRTCBundlePolicy::MaxBundle) // https://webrtcstandards.info/sdp-bundle/
-                    .property("latency", 0u32)
+                    // .property("latency", 0u32)
                     .property_from_str("stun-server", cli::manager::stun_server_address().as_str())
                     .property_from_str("turn-server", DEFAULT_TURN_ENDPOINT)
                     .build()
